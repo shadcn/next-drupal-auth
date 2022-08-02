@@ -1,8 +1,10 @@
 import Link from "next/link"
 
 import { PreviewAlert } from "components/preview-alert"
+import { useSession, signOut } from "next-auth/react"
 
 export function Layout({ children }) {
+  const { data, status } = useSession()
   return (
     <>
       <PreviewAlert />
@@ -14,11 +16,17 @@ export function Layout({ children }) {
                 Next.js for Drupal
               </a>
             </Link>
-            <Link href="https://next-drupal.org/docs" passHref>
-              <a target="_blank" rel="external" className="hover:text-blue-600">
-                Read the docs
-              </a>
-            </Link>
+            {status === "authenticated" && (
+              <p>
+                You are logged in as <strong>{data.user.email}</strong> -{" "}
+                <button onClick={() => signOut()}>Sign out</button>
+              </p>
+            )}
+            {status === "unauthenticated" && (
+              <Link href="/api/auth/signin" passHref>
+                <a>Sign in</a>
+              </Link>
+            )}
           </div>
         </header>
         <main className="container py-10 mx-auto">{children}</main>
